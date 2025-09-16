@@ -70,3 +70,15 @@ pulse_df = read_sas("./data/public_pulse_data.sas7bdat")
 pulse_df
 ```
 
+## comparison with base R
+
+what about `read.csv`...?
+
+```{r}
+litter_base = read.csv("./data/FAS_litters.csv")
+litter_readr = read_csv("./data/FAS_litters.csv") #用这个！！！
+
+litter_base #read.csv(_)会输出所有数据
+litter_readr
+```
+
