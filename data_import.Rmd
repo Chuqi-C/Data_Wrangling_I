@@ -5,6 +5,10 @@ output: github_document
 
 ```{r setup}
 library(tidyverse)
+# Excel 后面才用，但写在前面比较好
+library(readxl)
+# SAS
+library(haven)
 ```
 
 ## Read in some data
@@ -45,6 +49,24 @@ skimr::skim(litters_df)
 check out `?read_csv()` for more information.
 ```{r}
 litters_df = read_csv("./data/FAS_litters.csv", skip = 10, col_names = FALSE)
-spec(litters_df)
+```
+
+## other file format
+
+read in excel file
+
+```{r}
+mlb_df = read_excel("./data/mlb11.xlsx", range = "A1:F7")
+mlb_df
+# 写在console！！！
+#> View(mlb_df)
+#> ?read_excel
+```
+
+read in a SAS file
+
+```{r}
+pulse_df = read_sas("./data/public_pulse_data.sas7bdat")
+pulse_df
 ```
 
