@@ -18,4 +18,27 @@ litters_df = janitor::clean_names(litters_df)
 spec(litters_df)
 ```
 
-##take a look at the data
+## take a look at the data
+
+printing in the console.
+
+```{r}
+litters_df
+```
+
+```{r}
+head(litters_df)
+tail(litters_df)
+# check tail 以防数据末端异常
+```
+
+```{r}
+# ::等同于library。现实中不怎么用
+skimr::skim(litters_df)
+# 经常用的是View(litters_df)，直接在console里写！！！
+```
+
+```{r}
+
+```
+
