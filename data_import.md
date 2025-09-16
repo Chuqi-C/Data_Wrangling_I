@@ -146,4 +146,37 @@ Data summary
 
 ``` r
 # 经常用的是View(litters_df)，直接在console里写！！！
+# ?read_csv可以在help里查看
 ```
+
+## options to read_csv
+
+check out `?read_csv()` for more information.
+
+``` r
+litters_df = read_csv("./data/FAS_litters.csv", skip = 10, col_names = FALSE)
+```
+
+    ## Rows: 40 Columns: 8
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (4): X1, X2, X3, X4
+    ## dbl (4): X5, X6, X7, X8
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+spec(litters_df)
+```
+
+    ## cols(
+    ##   X1 = col_character(),
+    ##   X2 = col_character(),
+    ##   X3 = col_character(),
+    ##   X4 = col_character(),
+    ##   X5 = col_double(),
+    ##   X6 = col_double(),
+    ##   X7 = col_double(),
+    ##   X8 = col_double()
+    ## )

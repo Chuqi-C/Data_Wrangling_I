@@ -36,9 +36,15 @@ tail(litters_df)
 # ::等同于library。现实中不怎么用
 skimr::skim(litters_df)
 # 经常用的是View(litters_df)，直接在console里写！！！
+# ?read_csv可以在help里查看
 ```
 
-```{r}
 
+## options to read_csv
+
+check out `?read_csv()` for more information.
+```{r}
+litters_df = read_csv("./data/FAS_litters.csv", skip = 10, col_names = FALSE)
+spec(litters_df)
 ```
 
