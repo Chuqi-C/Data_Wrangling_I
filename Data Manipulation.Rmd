@@ -1,0 +1,235 @@
+---
+title: "Data Manipulation"
+author: "Chuqi"
+date: "2025-09-18"
+output: github_document
+---
+使用dplyr动词和管道清理和整理数据。
+
+示例：
+在这个例子中，我将为我为Data Wrangling I主题启动的repo/项目启动一个新的R Markdown文件；这将使使用我在数据导入中编写的代码轻松加载示例数据集。
+
+我们将再次使用tidyverse，所以我们一开始就会加载它。我们将查看大量输出，因此默认情况下，我将只打印每个提布尔的三行。最后，我们将关注FAS_litters.csv和FAS_pups.csv中的数据，因此我们将加载这些数据，并使用我们在数据导入中学到的内容清理列名。
+```{r}
+library(tidyverse)
+```
+
+import dataset
+```{r}
+options(tibble.print_min = 3)
+
+litters_df = 
+    read_csv("./data/FAS_litters.csv", na = c("NA", ".", ""))
+
+litters_df = 
+    janitor::clean_names(litters_df)
+
+pups_df = 
+    read_csv("./data/FAS_pups.csv", na = c("NA", "."), skip = 3) #跳过前三行
+pups_df = 
+    janitor::clean_names(pups_df)
+```
+
+
+
+## select
+
+对于给定的分析，您可能只需要数据表中列的子集；仅提取您需要的内容可以有助于整理杂乱，特别是当您有大型数据集时。使用select选择列。
+
+您可以通过命名所有列来指定要保留的列
+```{r}
+select(litters_df, group, litter_number, gd0_weight, pups_born_alive)
+```
+
+您可以指定要保留的列范围
+:
+哪列到哪列
+```{r}
+select(litters_df, group:gd_of_birth)
+```
+
+您还可以指定要删除的列
+-
+删除
+```{r}
+select(litters_df, -pups_survive)
+```
+
+您可以将变量重新命名为此过程的一部分
+```{r}
+select(litters_df, GROUP = group, LiTtEr_NuMbEr = litter_number)
+```
+
+如果您只想重命名某物，您可以使用rename而不是select。这将重命名您关心的变量，并保留其他所有内容
+select by rename
+```{r}
+rename(litters_df, GROUP = group, LiTtEr_NuMbEr = litter_number)
+```
+
+有一些方便的帮助函数进行select；阅读所有使用?select_helpers。我经常使用starts_with()ends_with()和contains()），特别是当变量用后缀或其他标准模式命名时
+经常用！！！
+```{r}
+select(litters_df, group, starts_with("gd"))
+```
+
+rearange
+```{r}
+select(litters_df, starts_with("gd"), group)
+select(litters_df, litter_number, everything())
+```
+
+我还经常使用iseverythingeverything()这对于在不丢弃任何东西的情况下重新组织列很方便：
+```{r}
+select(litters_df, litter_number, pups_survive, everything())
+```
+
+relocate做类似的事情（有点像rename，因为它很方便，但并不重要）：
+```{r}
+relocate(litters_df, litter_number, pups_survive)
+```
+
+在更大的数据集中，
+
+最后，与dplyr中的其他函数一样，即使您只选择一列，select也会导出数据框架。大多数情况下，这很好，但有时您希望将向量存储在列中。要拉动单个变量，请使用pull。
+
+只想要一个变量？
+
+##学习评估：在小狗数据中，选择包含猫砂数量、性别和PD耳朵的列。
+```{r}
+select(pups_df, litter_number, sex, pd_ears)
+```
+
+```{r}
+filter(litters_df, pups_born_alive ==6)
+```
+
+```{r}
+filter(litters_df, pups_born_alive > 5)
+filter(litters_df, pups_born_alive >= 5)
+filter(litters_df, pups_born_alive <= 5)
+```
+
+```{r}
+filter(pups_df, sex == 1)
+filter(pups_df, pd_walk < 1, sex == 2)
+```
+
+
+
+## mutate
+mutate
+
+有时您需要选择列；有时您需要更改它们或创建新的列。你可以使用mutate来做到这一点。
+
+下面的示例创建了一个测量gd18_weight和gd0_weight之间的差异的新变量，并修改了现有的
+```{r}
+mutate(
+  litters_df,
+  wt_gain = gd18_weight - gd0_weight,
+  group = str_to_lower(group)
+)
+```
+这个例子中的几件事值得一点：
+
+你的新变量可以是旧变量的函数
+新变量按照创建顺序出现在数据集的末尾
+你可以覆盖旧的变量
+您可以创建一个新变量，并立即引用（或更改）它
+创建一个完全符合你需求的新变量可能是一个挑战；你了解的功能越多，这就越容易。
+
+###学习评估：在小狗数据中：
+创建一个从PD枢轴中减去7的变量
+创建一个变量，即所有PD变量的总和
+解决方案
+
+
+
+#arrange
+与前述相比，安排非常简单。您可以根据一个或多个列中的值排列数据中的行：
+```{r}
+arrange(litters_df, pups_born_alive)
+arrange(litters_df, desc(group), pups_born_alive)
+
+arrange(litters_df, gd0_weight)
+```
+
+我们看到了您将经常用于数据操作和清理的几个命令。您很少会单独使用它们。例如，假设您想加载数据，清理列名，删除pups_survive，并创建wt_gain。这种多步骤数据操作有几个选项：
+·定义中间数据集（或在每个阶段覆盖数据）
+·巢函数调用
+以下是第一个选项的示例：
+do not do this！！！
+```{r}
+litters_df_clean = 
+  drop_na(
+    mutate(
+      select(
+        janitor::clean_names(
+          read_csv("./data/FAS_litters.csv", na = c("NA", ".", ""))
+          ), 
+      -pups_survive
+      ),
+    wt_gain = gd18_weight - gd0_weight,
+    group = str_to_lower(group)
+    ),
+  wt_gain
+  )
+
+litters_df_clean
+```
+
+
+## PIPES
+下面，我们尝试第二个选项：
+```{r}
+litters_df = 
+  read_csv("./data/FAS_litters.csv", na = c("NA", ".", "")) |> 
+  janitor::clean_names() |> 
+  select(-pups_survive) |> 
+  mutate(
+    wt_gain = gd18_weight - gd0_weight,
+    group = str_to_lower(group)) |> 
+  drop_na(wt_gain)
+```
+
+所有三种方法都产生相同的数据集，但到目前为止，管道命令是最直接的。阅读|>的最简单方法是“then”；键盘快捷键是
+Cmd + Shift + M（Mac）。请注意，默认情况下，RStudio将插入“传统”管道%>%，您可以通过全局首选项>代码>使用本机管道运算符更新到管道中的原生。以下有关|>和%>%之间的差异的更多信息。
+
+dplyr（以及大部分tidyverse）中的函数旨在与管道操作员顺利工作。默认情况下，管道将取一个函数调用的结果，并将其用作下一个函数调用的第一个参数；根据设计，dplyr中的函数将以tibble为输入，并返回一个tibble作为结果。因此，dplyr中的函数很容易在数据清理链中连接。
+
+在大多数情况下（以及 tidyverse 的任何地方），你可以相信第一个论点是正确的，并对生活感到满意，但在某些情况下，你正在管道的东西并没有进入第一个论点。在这里，有必要使用占位符_来指示被管道的对象应该去哪里。例如，要在pups_born_alive上回归wt_gain，您可以使用：
+```{r}
+litters_df |>
+  lm(wt_gain ~ pups_born_alive, data = _) |>
+  broom::tidy()
+```
+
+管道有限制。你不应该有太长的序列；没有处理多个输入和输出的好方法；而且不是每个人都会知道|>意味着什么或做什么。也就是说，与R用户只有前两个选项的日子相比，生活要好得多！
+
+##学习评估：编写一串命令：
+加载小狗数据
+清理变量名称
+过滤数据，只包括有性1的小狗
+去除PD耳朵变量
+创建一个变量，表示PD枢轴是7天还是更长时间
+解决方案
+```{r}
+pups_df = 
+  read_csv("./data/FAS_pups.csv", skip=3, na = c("NA", ".", "")) |> 
+  janitor::clean_names() |> 
+  filter(sex == 1)|> 
+  select(-pd_ears)|>
+  mutate(pd_pivot_ge7 = pd_pivot >=7)
+
+pups_df
+```
+
+```{r}
+
+```
+
+|>对比%>%
+
+|>和%>%之间存在一些细微的差异，阅读这些差异是有帮助的，但在绝大多数情况下，这些差异实际上是可以互换的。虽然相似性和差异性可能很重要，但有几个点可能会更频繁地出现：
+
+您将在网上看到很多%>%。它首先被引入，在|>出现之前，在tidyverse代码中非常普遍。
+原生管道|>是在R 4.1.0中引入的，它在4.2.0和4.3.0中发生了一些变化；它现在非常稳定，主要功能不太可能改变，但它不会让每个人都熟悉，也根本无法在旧版本的R中使用。
