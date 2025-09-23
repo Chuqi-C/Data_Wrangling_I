@@ -1,0 +1,14 @@
+---
+title: "tidy_data"
+author: "chuqi"
+date: "2025-09-23"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+
+options(tibble.print_min = 5)
+
+```
+
